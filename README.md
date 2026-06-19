@@ -1,36 +1,124 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Job Application Tracker
+
+A simple, clean web app to track and manage your job applications. Add applications, update their status as you move through interviews, search and filter, and keep everything in one place.
+
+## Features
+
+- Full CRUD for job applications (create, read, update, delete)
+- List view with a data table
+- View a single application's full details
+- Add and edit applications with form validation
+- Delete with a confirmation dialog
+- Status tracking: Applied, Interviewing, Offer, Rejected
+- Filter applications by status
+- Search by company name or job title
+- Dashboard with summary stats and recent applications
+- Loading skeletons, empty states, and toast notifications
+- Light and dark mode
+- Responsive layout
+
+## Tech Stack
+
+- **Framework:** Next.js 16 (App Router)
+- **Language:** JavaScript
+- **Database:** PostgreSQL
+- **ORM:** Prisma 7 (with the `@prisma/adapter-pg` driver adapter)
+- **UI:** Tailwind CSS v4 + shadcn/ui components
+- **Forms:** React Hook Form + Zod
+- **Icons:** lucide-react
+- **Toasts:** sonner
+- **Theming:** next-themes
 
 ## Getting Started
 
-First, run the development server:
+### 1. Install dependencies
+
+```bash
+npm install
+```
+
+### 2. Set up environment variables
+
+Copy the example file and fill in your database connection string:
+
+```bash
+cp .env.example .env
+```
+
+Then edit `.env` and set `DATABASE_URL` (see [Environment Variables](#environment-variables) below).
+
+### 3. Set up the database
+
+Apply the Prisma migrations to create the database schema:
+
+```bash
+npx prisma migrate deploy
+```
+
+If you are developing locally and want to create new migrations as you change the schema, use:
+
+```bash
+npx prisma migrate dev
+```
+
+(Optional) Seed the database with 5 sample applications:
+
+```bash
+npm run seed
+```
+
+### 4. Run the development server
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+### 5. Build and run a production build
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm run build
+npm run start
+```
 
-## Learn More
+## API Routes
 
-To learn more about Next.js, take a look at the following resources:
+All routes return JSON in the shape `{ success: boolean, data?, message? }`.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+| Method | Route                      | Description                                              |
+| ------ | -------------------------- | -------------------------------------------------------- |
+| GET    | `/api/applications`        | List all applications. Supports `?status=` and `?search=` query params. |
+| POST   | `/api/applications`        | Create a new application.                                |
+| GET    | `/api/applications/[id]`   | Get a single application by ID.                          |
+| PATCH  | `/api/applications/[id]`   | Update the provided fields of an application.            |
+| DELETE | `/api/applications/[id]`   | Delete an application by ID.                             |
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Query parameters (GET `/api/applications`)
 
-## Deploy on Vercel
+- `status` — filter by one of `APPLIED`, `INTERVIEWING`, `OFFER`, `REJECTED`.
+- `search` — case-insensitive match against company name or job title.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Example: `/api/applications?status=INTERVIEWING&search=acme`
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Environment Variables
+
+| Variable       | Required | Description                                                                 |
+| -------------- | -------- | --------------------------------------------------------------------------- |
+| `DATABASE_URL` | Yes      | PostgreSQL connection string used by Prisma. See `.env.example` for the format. (Direct Connection String - Transaction Pooler)|
+
+Never commit your real `.env` file. Only `.env.example` (with placeholder values) is tracked in git.
+
+
+## Project Structure
+
+```
+app/
+  api/applications/         # API route handlers (REST)
+  applications/             # List, view, add, edit pages
+  settings/                 # Settings page
+  page.js                   # Dashboard
+components/                 # Feature components + shadcn/ui primitives
+lib/prisma.js               # Prisma client singleton
+prisma/                     # Schema, migrations, seed script
+```

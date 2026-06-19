@@ -43,10 +43,38 @@ export async function POST(request) {
     }
 }
 
-export async function GET() {
+export async function GET(request) {
     try {
 
-        const applications = await prisma.applications.findMany({
+        const { searchParams } = new URL(request.url)
+        const status = searchParams.get("status")
+        const search = searchParams.get("search")
+
+        const where = {}
+
+        if (status) {
+            where.status = status
+        }
+
+        if (search) {
+            where.OR = [
+                {
+                    companyName: {
+                        contains: search,
+                        mode: "insensitive"
+                    }
+                },
+                {
+                    jobTitle: {
+                        contains: search,
+                        mode: "insensitive"
+                    }
+                }
+            ]
+        }
+
+        const applications = await prisma.application.findMany({
+            where: where,
             orderBy: {
                 createdAt: "desc"
             }
