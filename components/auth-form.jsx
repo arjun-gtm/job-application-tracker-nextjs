@@ -20,14 +20,25 @@ import {
 } from "@/components/ui/form";
 
 const loginSchema = z.object({
-  email: z.string().min(1, "Email is required.").email("Enter a valid email."),
+  email: z
+    .string()
+    .trim()
+    .min(1, "Email is required.")
+    .email("Enter a valid email."),
   password: z.string().min(1, "Password is required."),
 });
 
 const signupSchema = z.object({
-  name: z.string().optional(),
-  email: z.string().min(1, "Email is required.").email("Enter a valid email."),
-  password: z.string().min(6, "Password must be at least 6 characters."),
+  name: z.string().trim().optional(),
+  email: z
+    .string()
+    .trim()
+    .min(1, "Email is required.")
+    .email("Enter a valid email."),
+  password: z
+    .string()
+    .min(6, "Password must be at least 6 characters.")
+    .max(72, "Password must be 72 characters or fewer."),
 });
 
 export function AuthForm({ mode }) {
@@ -37,6 +48,7 @@ export function AuthForm({ mode }) {
 
   const form = useForm({
     resolver: zodResolver(isSignup ? signupSchema : loginSchema),
+    mode: "onTouched",
     defaultValues: {
       name: "",
       email: "",
